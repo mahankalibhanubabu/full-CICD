@@ -16,7 +16,7 @@ pipeline{
         }
         stages('Build Docker Image'){
             steps{
-                sh 'docker build -t $IMAGE_NAME'
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
         stages('Stop & Remove Previous container'){
