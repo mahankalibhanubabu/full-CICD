@@ -1,51 +1,62 @@
-pipeline{
+pipeline {
     agent any
 
-    triggers {
-        githubPush()
-    }
-
-    environment{
+    environment {
         CONTAINER_NAME = "nestjs-app"
-        IMAGE_NAME = "nestjs-image"
-        EMAIL ="bobbybhanumahankali@gmail.com"
-        PORT = "3000"
+        IMAGE_NAME     = "nestjs-image"
+        EMAIL          = "bobbybhanumahankali@gmail.com"
+        PORT           = "3000"
     }
 
-    stages{
-        stage('Clone Repo'){
-            steps{
-                git branch: 'main',url:'https://github.com/mahankalibhanubabu/full-CICD.git'
+    stages {
+
+        stage('Clone Repo') {
+            steps {
+                git(
+                    branch: 'main',
+                    url: 'https://github.com/mahankalibhanubabu/full-CICD.git'
+                )
             }
         }
-        stages('Build Docker Image'){
-            steps{
-                sh 'docker build -t $IMAGE_NAME .'
-            }
-        }
-        stages('Stop & Remove Previous container'){
-            steps{
+
+        stage('Build Docker Image') {
+            steps {
                 sh '''
-                    docker stop $CONTAINER_NAME || true
-                    docker rm $CONTAINER_NAME || true
+                    docker build -t ${IMAGE_NAME} .
                 '''
             }
         }
-        stages('Docker container Run'){
-            steps{
+
+        stage('Stop & Remove Previous Container') {
+            steps {
                 sh '''
-                    docker run -d -p ${PORT}:${PORT}
-                    --name $CONTAINER_NAME $IMAGE_NAME
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
                 '''
             }
         }
-        stages('Send email notifcation'){
-            steps{
-                emailtext(
-                    subject: "Nestjs App Deployed Successfully on EC2!",
-                    body: "Your Nest JS App is deployed !
-                    here is he link : http://18.61.84.31:${PORT}/",
-                    to:"${EMAIL}"
+
+        stage('Run Docker Container') {
+            steps {
+                sh '''
+                    docker run -d \
+                        -p ${PORT}:${PORT} \
+                        --name ${CONTAINER_NAME} \
+                        ${IMAGE_NAME}
+                '''
+            }
+        }
+
+        stage('Send Email Notification') {
+            steps {
+                emailext(
+                    subject: 'NestJS App Deployed Successfully on EC2!',
+                    body: """Your NestJS App has been deployed successfully!
+
+Application URL:
+http://18.61.42.165:${PORT}/
+""",
+                    to: "${EMAIL}"
                 )
             }
         }
