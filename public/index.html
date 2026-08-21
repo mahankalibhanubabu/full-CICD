@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus CI/CD — DevOps Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-icon">
+          <i data-lucide="layers"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">NEXUS</span>
+          <span class="brand-sub">CI/CD CENTER</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="#pipelines" class="nav-item active" data-tab="pipelines">
+          <i data-lucide="git-branch"></i>
+          <span>Pipelines</span>
+          <span class="badge-count" id="active-pipes-count">1</span>
+        </a>
+        <a href="#metrics" class="nav-item" data-tab="metrics">
+          <i data-lucide="activity"></i>
+          <span>Live Metrics</span>
+        </a>
+        <a href="#containers" class="nav-item" data-tab="containers">
+          <i data-lucide="box"></i>
+          <span>Containers</span>
+        </a>
+        <a href="#logs" class="nav-item" data-tab="logs">
+          <i data-lucide="terminal"></i>
+          <span>Console Logs</span>
+        </a>
+        <a href="#infra" class="nav-item" data-tab="infra">
+          <i data-lucide="server"></i>
+          <span>Infrastructure</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="instance-card">
+          <div class="instance-header">
+            <span class="pulse-dot online"></span>
+            <span class="instance-name">EC2 Production</span>
+          </div>
+          <p class="instance-ip">18.61.42.165:3000</p>
+          <div class="instance-bar"><div class="instance-fill" style="width: 28%"></div></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Navigation Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title" id="page-heading">Pipeline Operations</h1>
+          <div class="live-pill">
+            <span class="pulse-dot"></span>
+            <span>SYSTEM LIVE</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="refresh-indicator">
+            <i data-lucide="refresh-cw" id="refresh-icon" class="spin-on-click"></i>
+            <span id="last-sync-time">Synced 0s ago</span>
+          </div>
+          <button class="btn btn-primary" id="btn-open-trigger-modal">
+            <i data-lucide="play"></i>
+            <span>Trigger Build</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Stat Overview Cards -->
+      <section class="stats-grid">
+        <div class="stat-card glass">
+          <div class="stat-icon-wrap primary">
+            <i data-lucide="cpu"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Container Status</span>
+            <div class="stat-value" id="stat-container-status">nestjs-app</div>
+            <span class="stat-trend positive"><i data-lucide="check-circle-2"></i> Healthy (Port 3000)</span>
+          </div>
+        </div>
+
+        <div class="stat-card glass">
+          <div class="stat-icon-wrap success">
+            <i data-lucide="check-check"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Success Rate</span>
+            <div class="stat-value" id="stat-success-rate">98.5%</div>
+            <span class="stat-trend positive"><i data-lucide="arrow-up-right"></i> +2.4% this week</span>
+          </div>
+        </div>
+
+        <div class="stat-card glass">
+          <div class="stat-icon-wrap warning">
+            <i data-lucide="clock"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">System Uptime</span>
+            <div class="stat-value" id="stat-uptime">0h 00m</div>
+            <span class="stat-trend neutral"><i data-lucide="zap"></i> Node.js Runtime</span>
+          </div>
+        </div>
+
+        <div class="stat-card glass">
+          <div class="stat-icon-wrap purple">
+            <i data-lucide="gauge"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Memory Utilization</span>
+            <div class="stat-value" id="stat-memory">-- MB</div>
+            <span class="stat-trend neutral" id="stat-memory-sub">0% of total host RAM</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab: Pipelines -->
+      <div class="tab-content active" id="tab-pipelines">
+        <!-- Live Pipeline Visualizer Card -->
+        <div class="card glass highlight-card" id="latest-pipeline-card">
+          <div class="card-header">
+            <div class="pipeline-header-info">
+              <div class="pipeline-title-row">
+                <span class="badge" id="current-build-badge">BUILD #105</span>
+                <span class="branch-pill"><i data-lucide="git-branch"></i> <span id="current-build-branch">main</span></span>
+                <span class="commit-pill"><i data-lucide="git-commit"></i> <span id="current-build-commit">2d85f57</span></span>
+              </div>
+              <p class="commit-message" id="current-build-msg">chore: update application port from 3000 to 5173 in Jenkinsfile</p>
+            </div>
+            <div class="pipeline-status-badge" id="current-build-status">
+              <span class="status-indicator"></span>
+              <span id="current-build-status-text">SUCCESS</span>
+            </div>
+          </div>
+
+          <!-- Interactive Pipeline Stages Visualizer -->
+          <div class="stages-flow-wrapper">
+            <div class="stages-flow" id="stages-container">
+              <!-- Dynamically rendered stages -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Pipeline History Section -->
+        <div class="card glass">
+          <div class="card-header flex-between">
+            <div class="card-title-wrap">
+              <h2 class="card-title">Recent Pipeline Executions</h2>
+              <p class="card-desc">History of all automated webhook and manual pipeline builds</p>
+            </div>
+            <div class="table-actions">
+              <div class="search-box">
+                <i data-lucide="search"></i>
+                <input type="text" id="pipeline-search" placeholder="Search branch or commit..." />
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table" id="pipelines-table">
+              <thead>
+                <tr>
+                  <th>Build #</th>
+                  <th>Status</th>
+                  <th>Branch / Commit</th>
+                  <th>Duration</th>
+                  <th>Triggered By</th>
+                  <th>Timestamp</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pipelines-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Metrics -->
+      <div class="tab-content" id="tab-metrics">
+        <div class="grid-2-col">
+          <div class="card glass">
+            <div class="card-header">
+              <h2 class="card-title">Traffic & Request Volume</h2>
+            </div>
+            <div class="chart-container">
+              <div class="chart-bars" id="traffic-bars">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <div class="card glass">
+            <div class="card-header">
+              <h2 class="card-title">Performance & DORA Metrics</h2>
+            </div>
+            <div class="dora-grid">
+              <div class="dora-metric">
+                <span class="dora-title">Deployment Frequency</span>
+                <span class="dora-val" id="dora-freq">6.4 / day</span>
+                <span class="dora-badge elite">Elite</span>
+              </div>
+              <div class="dora-metric">
+                <span class="dora-title">Mean Time to Recovery (MTTR)</span>
+                <span class="dora-val" id="dora-mttr">4m 12s</span>
+                <span class="dora-badge elite">Elite</span>
+              </div>
+              <div class="dora-metric">
+                <span class="dora-title">Change Failure Rate</span>
+                <span class="dora-val">1.2%</span>
+                <span class="dora-badge elite">Elite</span>
+              </div>
+              <div class="dora-metric">
+                <span class="dora-title">Avg Build Duration</span>
+                <span class="dora-val" id="dora-duration">1m 52s</span>
+                <span class="dora-badge high">High</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Containers -->
+      <div class="tab-content" id="tab-containers">
+        <div class="card glass">
+          <div class="card-header flex-between">
+            <div class="card-title-wrap">
+              <h2 class="card-title">Docker Workloads & Container Engine</h2>
+              <p class="card-desc">Active container runtime details managed by Jenkins automation</p>
+            </div>
+            <span class="badge success">Docker Engine 24.0.7</span>
+          </div>
+
+          <div class="container-detail-grid">
+            <div class="detail-box">
+              <span class="detail-title">Container Name</span>
+              <span class="detail-value mono" id="box-container-name">nestjs-app</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-title">Docker Image</span>
+              <span class="detail-value mono" id="box-image-name">nestjs-image:latest</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-title">Exposed Port</span>
+              <span class="detail-value mono">3000 : 3000 (TCP)</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-title">Base OS</span>
+              <span class="detail-value">Alpine Linux (Node 18)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Console Logs -->
+      <div class="tab-content" id="tab-logs">
+        <div class="card glass terminal-card">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <span class="terminal-title">live-deployment-stream.log</span>
+            <div class="terminal-actions">
+              <button class="btn-icon-small" id="btn-copy-logs" title="Copy Logs">
+                <i data-lucide="copy"></i>
+              </button>
+              <button class="btn-icon-small" id="btn-clear-logs" title="Clear Console">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </div>
+          <div class="terminal-body" id="live-terminal">
+            <!-- Logs injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Infrastructure -->
+      <div class="tab-content" id="tab-infra">
+        <div class="card glass">
+          <div class="card-header">
+            <h2 class="card-title">CI/CD Pipeline Topology & AWS Deployment</h2>
+          </div>
+          <div class="topology-wrapper">
+            <div class="topology-node">
+              <div class="node-icon github"><i data-lucide="github"></i></div>
+              <div class="node-content">
+                <h4>GitHub Repository</h4>
+                <p>mahankalibhanubabu/full-CICD</p>
+                <span class="node-sub">Branch: main &bull; Webhook Active</span>
+              </div>
+            </div>
+            <div class="topology-arrow"><i data-lucide="arrow-right"></i></div>
+            <div class="topology-node">
+              <div class="node-icon jenkins"><i data-lucide="cpu"></i></div>
+              <div class="node-content">
+                <h4>Jenkins CI Server</h4>
+                <p>Automated Pipeline Executor</p>
+                <span class="node-sub">5 Stages Defined in Jenkinsfile</span>
+              </div>
+            </div>
+            <div class="topology-arrow"><i data-lucide="arrow-right"></i></div>
+            <div class="topology-node">
+              <div class="node-icon docker"><i data-lucide="box"></i></div>
+              <div class="node-content">
+                <h4>AWS EC2 Target</h4>
+                <p>Host: 18.61.42.165:3000</p>
+                <span class="node-sub">Dockerized NestJS Single Port</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Trigger Build Modal -->
+  <div class="modal-overlay" id="trigger-modal">
+    <div class="modal-card glass">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <i data-lucide="play-circle"></i>
+          <h3>Trigger New CI/CD Build</h3>
+        </div>
+        <button class="modal-close" id="btn-close-modal"><i data-lucide="x"></i></button>
+      </div>
+      <form id="trigger-form">
+        <div class="form-group">
+          <label>Target Branch</label>
+          <select id="modal-branch" class="form-control">
+            <option value="main">main (production)</option>
+            <option value="develop">develop</option>
+            <option value="feature/pipeline-enhancements">feature/pipeline-enhancements</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Commit Message / Build Note</label>
+          <input type="text" id="modal-commit-msg" class="form-control" value="feat: manual pipeline execution from command center" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-trigger">
+            <i data-lucide="rocket"></i>
+            <span>Launch Pipeline</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
