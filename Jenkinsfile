@@ -13,7 +13,7 @@ pipeline{
     }
 
     stages{
-        stages('Clone Repo'){
+        stage('Clone Repo'){
             steps{
                 git branch: 'main',url:'https://github.com/mahankalibhanubabu/full-CICD.git'
             }
