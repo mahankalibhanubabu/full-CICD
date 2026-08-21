@@ -1,6 +1,10 @@
 pipeline{
     agent any
 
+    triggers {
+        githubPush()
+    }
+
     environment{
         CONTAINER_NAME = "nestjs-app"
         IMAGE_NAME = "nestjs-image"
